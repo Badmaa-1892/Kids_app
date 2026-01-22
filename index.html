@@ -2,23 +2,23 @@
 <html lang="mn">
 <head>
     <meta charset="UTF-8">
-    <title>Наадам 🏇 - Уншиж сурцгаая</title>
+    <title>Наадам 🏇 - Цэвэр Монгол Дуу</title>
     <style>
         body { font-family: 'Arial', sans-serif; background-color: #f0f9ff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
         .card { background: white; width: 85%; max-width: 900px; padding: 50px; border-radius: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center; border: 8px solid #48dbfb; }
         .word { display: inline-block; cursor: pointer; padding: 2px 10px; border-radius: 15px; transition: 0.2s; border-bottom: 3px dashed #eee; font-size: 38px; font-weight: bold; color: #2c3e50; margin: 5px; }
         .word:hover { background-color: #fffa65; transform: scale(1.1); color: #e67e22; }
-        .word.playing { background-color: #f9ca24 !important; color: black !important; border-bottom-color: #f0932b; }
-        #start-btn { padding: 25px 60px; font-size: 30px; background: #27ae60; color: white; border: none; border-radius: 60px; cursor: pointer; box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+        .word.playing { background-color: #f9ca24 !important; color: black !important; }
+        #start-btn { padding: 25px 60px; font-size: 30px; background: #27ae60; color: white; border: none; border-radius: 60px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<button id="start-btn" onclick="startApp()">🚀 Уншиж эхлэх</button>
+<button id="start-btn" onclick="startApp()">🚀 Цэвэр Монголоор сонсох</button>
 
 <div class="card" id="main-card" style="display:none;">
     <div style="font-size: 100px;">🏇</div>
-    <h1 onclick="playAudio('Наадам', this)">Наадам</h1>
+    <h1 onclick="playMongolian('Наадам', this)">Наадам</h1>
     <div id="story-container"></div>
 </div>
 
@@ -34,46 +34,29 @@
             const span = document.createElement('span');
             span.className = 'word';
             span.innerText = word + ' ';
-            span.onclick = () => playAudio(word, span);
+            span.onclick = () => playMongolian(word, span);
             container.appendChild(span);
         });
     }
 
-    function playAudio(word, element) {
+    function playMongolian(word, element) {
         if(element) element.classList.add('playing');
         const cleanWord = word.replace(/[.,-?]/g,"");
         
-        // Google Translate-ийн дууг өөр аргаар (Proxy ашиглахгүй шууд) дуудах
-        const url = "https://translate.google.com/translate_tts?ie=UTF-8&tl=mn&client=tw-ob&q=" + encodeURIComponent(cleanWord);
+        // Google Translate-ийн цэвэр Монгол дууны хаяг
+        // Бид 'client=tw-ob' гэсэн найдвартай хувилбарыг ашиглаж байна
+        const url = "https://translate.google.com/translate_tts?ie=UTF-8&q=" + encodeURIComponent(cleanWord) + "&tl=mn&client=tw-ob";
         
         const audio = new Audio();
         audio.src = url;
-        
-        // Хэрэв дуу ачаалахгүй бол дараагийн арга руу шилжинэ
-        const timer = setTimeout(() => {
-            if (audio.paused) {
-                console.log("Google удаж байна, систем уншигч руу шилжлээ");
-                fallbackSpeech(cleanWord, element);
-            }
-        }, 1000);
 
         audio.play().then(() => {
-            clearTimeout(timer);
             audio.onended = () => { if(element) element.classList.remove('playing'); };
         }).catch(e => {
-            clearTimeout(timer);
-            fallbackSpeech(cleanWord, element);
+            if(element) element.classList.remove('playing');
+            // Хэрэв алдаа гарвал Орос дуудлага руу шилжихгүйгээр мэдэгдэл харуулна
+            alert("Цэвэр Монгол дууг татаж чадсангүй. Та интернэтээ шалгаад хуудсаа дахин ачаална уу.");
         });
-    }
-
-    // Хөтөчийн өөрийн систем (Интернэтгүй үед ажиллана)
-    function fallbackSpeech(text, element) {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'ru-RU'; // Монгол хэл байхгүй тул Оросоор
-        utterance.rate = 0.7;
-        utterance.onend = () => { if(element) element.classList.remove('playing'); };
-        window.speechSynthesis.speak(utterance);
     }
 </script>
 </body>
