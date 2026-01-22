@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Уншиж сурцгаая 📖</title>
+    <style>
+        body { font-family: 'Arial', sans-serif; background-color: #f0f9ff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .reading-card { background: white; width: 95%; max-width: 700px; padding: 40px; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; border: 6px solid #48dbfb; }
+        .word { display: inline-block; cursor: pointer; padding: 2px 10px; border-radius: 12px; transition: 0.2s; border-bottom: 2px dashed #ddd; font-size: 34px; font-weight: bold; line-height: 2.2; color: #2c3e50; }
+        .word:hover { background-color: #fffa65; transform: scale(1.1); color: #e67e22; }
+        .word.playing { background-color: #f9ca24; color: black; border-bottom-color: #f0932b; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        #start-btn { padding: 20px 50px; font-size: 26px; background: #27ae60; color: white; border: none; border-radius: 50px; cursor: pointer; margin-bottom: 20px; box-shadow: 0 8px 15px rgba(40, 167, 69, 0.3); transition: 0.3s; }
+        #start-btn:hover { background: #219150; transform: translateY(-3px); }
+        .status { font-size: 14px; color: #7f8c8d; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+<button id="start-btn" onclick="initPage()">🚀 Тоглоомыг эхлэх</button>
+
+<div class="reading-card" id="main-content" style="display:none;">
+    <div class="status">🟢 Систем ажиллахад бэлэн</div>
+    <div style="font-size: 90px; margin-bottom: 10px;">🏇</div>
+    <h1 style="cursor:pointer; font-size: 45px; color: #2f3542;" onclick="playMongolianAudio('Наадам')">Наадам</h1>
+    
+    <div id="story"></div>
+    
+    <div style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 20px; border-left: 5px solid #48dbfb;">
+        <p style="color: #57606f; font-size: 18px; margin: 0;">
+            👉 <b>Зөвлөгөө:</b> Хүүхэд тань үг бүр дээр дарж, яг Монгол хүн шиг яаж хэлж байгааг нь сонсож дагаж хэлээрэй.
+        </p>
+    </div>
+</div>
+
+<script>
+    const storyText = "Хүмүүс наадмаар хурдан морио уралдууллаа. Миний өвөө 2 шүдлэн сойсон. Ах дүү 2 шүдлэн унаад наадамд уралдав. Ахын унасан шүдлэн айрагдав. Хэн хэн хурдан шүдлэн унав?";
+
+    function initPage() {
+        document.getElementById('start-btn').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        
+        const container = document.getElementById('story');
+        storyText.split(' ').forEach(word => {
+            const span = document.createElement('span');
+            span.className = 'word';
+            span.innerText = word + ' ';
+            span.onclick = () => playMongolianAudio(word, span);
+            container.appendChild(span);
+        });
+        
+        // Эхлэхэд бэлэн гэдгийг мэдэгдэж нэг удаа дуу гаргана
+        playMongolianAudio("Амжилт хүсье");
+    }
+
+    function playMongolianAudio(text, element = null) {
+        const cleanText = text.replace(/[.,-?]/g, "");
+        
+        // Google-ийн дууг илүү баталгаатай татахын тулд 'https' холболт ашиглана
+        const audioUrl = "https://translate.google.com/translate_tts?ie=UTF-8&q=" + encodeURIComponent(cleanText) + "&tl=mn&client=tw-ob";
+        
+        const audio = new Audio(audioUrl);
+
+        if (element) element.classList.add('playing');
+
+        audio.play().then(() => {
+            audio.onended = () => {
+                if (element) element.classList.remove('playing');
+            };
+        }).catch(err => {
+            console.error("Дууны алдаа:", err);
+            if (element) element.classList.remove('playing');
+            alert("Дуу гарахад асуудал гарлаа. Та заавал интернэттэй байх ёстой бөгөөд хөтөчийнхөө Sound тохиргоог 'Allow' болгосон эсэхээ дахин нэг шалгаарай.");
+        });
+    }
+</script>
+</body>
+</html>
