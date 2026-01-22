@@ -2,9 +2,9 @@
 <html lang="mn">
 <head>
     <meta charset="UTF-8">
-    <title>Наадам 🏇 - Уншиж сурцгаая</title>
+    <title>Наадам 🏇 - Эмэгтэй хоолой</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f7fbff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f7fbff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
         .card { background: white; width: 90%; max-width: 950px; padding: 60px; border-radius: 50px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); text-align: center; border: 10px solid #48dbfb; }
         .word { display: inline-block; cursor: pointer; padding: 2px 12px; border-radius: 20px; transition: 0.2s; border-bottom: 4px dashed #f1f2f6; font-size: 46px; font-weight: 700; color: #2f3542; margin: 4px; }
         .word:hover { background-color: #fffa65; transform: scale(1.05); }
@@ -45,35 +45,33 @@
         if(el) el.classList.add('playing');
         window.speechSynthesis.cancel();
         
-        // Үгийг дутуу дуудахаас сэргийлж цэвэрлэх болон бага зэрэг зай авах
         const cleanWord = w.replace(/[.,-?]/g,"").trim();
         const utterance = new SpeechSynthesisUtterance(cleanWord);
         
         const voices = window.speechSynthesis.getVoices();
         
-        // Эхлээд Эмэгтэй хоолой (Namuna)-г хайх, олдохгүй бол Microsoft-ын өөр монгол хоолой
-        const femaleVoice = voices.find(v => v.name.includes('Namuna') || v.name.includes('Microsoft Namuna Online (Natural) - Mongolian'));
-        const genericMnVoice = voices.find(v => v.lang.includes('MN'));
+        // 1. Албадан "Microsoft Namuna" (Эмэгтэй) хоолойг хайх
+        let selectedVoice = voices.find(v => v.name.includes('Namuna') && v.name.includes('Online'));
+        
+        // 2. Хэрэв Намүүна байхгүй бол өөр ямар нэг монгол эмэгтэй хоолой хайх
+        if (!selectedVoice) {
+            selectedVoice = voices.find(v => v.lang.includes('mn-MN') && (v.name.includes('Female') || v.name.includes('Batchimeg')));
+        }
 
-        if (femaleVoice) {
-            utterance.voice = femaleVoice;
-        } else if (genericMnVoice) {
-            utterance.voice = genericMnVoice;
+        if (selectedVoice) {
+            utterance.voice = selectedVoice;
         }
 
         utterance.lang = 'mn-MN';
-        utterance.rate = 0.8; // Дуудлагыг тод болгохын тулд хурдыг бага зэрэг хасав
-        utterance.pitch = 1.1; // Эмэгтэйлэг болгохын тулд өнгийг үл ялиг өндөрсгөв
+        utterance.rate = 0.8; // Тод дуудахын тулд удаан
+        utterance.pitch = 1.2; // Эмэгтэйлэг болгохын тулд өндөр өнгө
 
         utterance.onend = () => { if(el) el.classList.remove('playing'); };
         
-        // Дууг бага зэрэг "амралттай" эхлүүлэх нь дутуу дуудахаас сэргийлнэ
-        setTimeout(() => {
-            window.speechSynthesis.speak(utterance);
-        }, 50);
+        window.speechSynthesis.speak(utterance);
     }
 
-    // Дуунуудыг Edge дээр бүрэн ачаалах
+    // Дуунуудыг ачаалахыг хүлээх
     window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
 </script>
 </body>
