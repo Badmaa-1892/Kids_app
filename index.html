@@ -2,77 +2,138 @@
 <html lang="mn">
 <head>
     <meta charset="UTF-8">
-    <title>Наадам 🏇 - Сүүлийн оролдлого</title>
+    <title>Наадам 🏇 - Уншиж сурцгаая</title>
     <style>
-        body { font-family: 'Arial', sans-serif; background-color: #f0f9ff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
-        .card { background: white; width: 85%; max-width: 900px; padding: 50px; border-radius: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center; border: 8px solid #48dbfb; }
-        .word { display: inline-block; cursor: pointer; padding: 5px 12px; border-radius: 15px; font-size: 42px; font-weight: bold; color: #2c3e50; margin: 5px; border-bottom: 3px dashed #eee; }
-        .word.playing { background-color: #f9ca24 !important; color: black !important; }
-        #start-btn { padding: 25px 60px; font-size: 30px; background: #27ae60; color: white; border: none; border-radius: 60px; cursor: pointer; font-weight: bold; }
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background-color: #f7fbff; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            padding: 20px;
+        }
+        .card { 
+            background: white; 
+            width: 90%; 
+            max-width: 950px; 
+            padding: 60px; 
+            border-radius: 50px; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1); 
+            text-align: center; 
+            border: 10px solid #48dbfb; 
+        }
+        .header-emoji { font-size: 120px; margin-bottom: 10px; }
+        h1 { 
+            font-size: 65px; 
+            color: #1e3799; 
+            cursor: pointer; 
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.05);
+        }
+        .story-container { 
+            margin-top: 40px; 
+            text-align: justify; 
+            line-height: 2.8; 
+            padding: 0 20px;
+        }
+        .word { 
+            display: inline-block; 
+            cursor: pointer; 
+            padding: 2px 12px; 
+            border-radius: 20px; 
+            transition: 0.2s all; 
+            border-bottom: 4px dashed #f1f2f6; 
+            font-size: 46px; /* Нөүтбүүкний дэлгэцэнд зориулсан том хэмжээ */
+            font-weight: 700; 
+            color: #2f3542;
+            margin: 4px;
+        }
+        .word:hover { 
+            background-color: #fffa65; 
+            transform: translateY(-5px) scale(1.05); 
+            color: #e67e22; 
+        }
+        .word.playing { 
+            background-color: #f9ca24 !important; 
+            color: black !important; 
+            border-bottom-color: #f0932b;
+            box-shadow: 0 5px 15px rgba(249, 202, 36, 0.4);
+        }
+        #start-screen { text-align: center; }
+        .btn {
+            padding: 30px 80px; 
+            font-size: 36px; 
+            background: #27ae60; 
+            color: white; 
+            border: none; 
+            border-radius: 70px; 
+            cursor: pointer; 
+            font-weight: bold;
+            box-shadow: 0 10px 25px rgba(39, 174, 96, 0.3);
+            transition: 0.3s;
+        }
+        .btn:hover { background: #219150; transform: scale(1.05); }
     </style>
 </head>
 <body>
 
-<button id="start-btn" onclick="startApp()">🚀 Тоглоомыг эхлэх</button>
+<div id="start-screen">
+    <button class="btn" onclick="startApp()">🚀 Уншиж эхлэх</button>
+</div>
 
 <div class="card" id="main-card" style="display:none;">
-    <div style="font-size: 110px;">🏇</div>
-    <h1 onclick="smartSpeak('Наадам')">Наадам</h1>
-    <div id="story"></div>
+    <div class="header-emoji">🏇</div>
+    <h1 onclick="playVoice('Наадам', this)">Наадам</h1>
+    <div class="story-container" id="story-box"></div>
 </div>
 
 <script>
-    const storyText = "Хүмүүс наадмаар хурдан морио урал-дуу-лав. Миний өвөө 2 шүдлэн сойсон. Ах дүү 2 шүдлэн унаад наадамд уралдав. Ахын унасан шүдлэн айрагдав. - Хэн хэн хурдан шүдлэн унав?";
+    const text = "Хүмүүс наадмаар хурдан морио урал-дуу-лав. Миний өвөө 2 шүдлэн сойсон. Ах дүү 2 шүдлэн унаад наадамд уралдав. Ахын унасан шүдлэн айрагдав. - Хэн хэн хурдан шүдлэн унав?";
 
     function startApp() {
-        document.getElementById('start-btn').style.display = 'none';
+        document.getElementById('start-screen').style.display = 'none';
         document.getElementById('main-card').style.display = 'block';
         
-        const container = document.getElementById('story');
-        storyText.split(' ').forEach(word => {
+        const container = document.getElementById('story-box');
+        text.split(' ').forEach(word => {
             const span = document.createElement('span');
             span.className = 'word';
             span.innerText = word + ' ';
-            span.onclick = () => smartSpeak(word, span);
+            span.onclick = () => playVoice(word, span);
             container.appendChild(span);
         });
-        smartSpeak("Сайн байна уу");
+        playVoice("Наадам");
     }
 
-    function smartSpeak(text, el) {
+    function playVoice(w, el) {
         if(el) el.classList.add('playing');
-        const cleanText = text.replace(/[.,-?]/g,"");
-
-        // 1-р Арга: Хөтөчийн онлайн дуу (Намүүна)
         window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(cleanText);
-        const voices = window.speechSynthesis.getVoices();
         
-        // Edge дээрх Намүүна-г хайх
-        const mnVoice = voices.find(v => v.name.includes('Namuna') || v.lang.includes('MN'));
+        const cleanWord = w.replace(/[.,-?]/g,"");
+        const utterance = new SpeechSynthesisUtterance(cleanWord);
+        
+        // Edge-ийн Монгол дууг (Namuna) сонгох
+        const voices = window.speechSynthesis.getVoices();
+        const mnVoice = voices.find(v => v.lang.includes('MN') || v.name.includes('Namuna'));
         
         if (mnVoice) {
             utterance.voice = mnVoice;
             utterance.lang = 'mn-MN';
-            utterance.onend = () => { if(el) el.classList.remove('playing'); };
-            window.speechSynthesis.speak(utterance);
         } else {
-            // 2-р Арга: Google TTS (Хэрэв систем дээр Монгол хэл байхгүй бол)
-            const audio = new Audio("https://translate.google.com/translate_tts?ie=UTF-8&tl=mn&client=tw-ob&q=" + encodeURIComponent(cleanText));
-            audio.play()
-                .then(() => {
-                    audio.onended = () => { if(el) el.classList.remove('playing'); };
-                })
-                .catch(() => {
-                    // 3-р Арга: Орос хэлээр (Бүх зүйл бүтэлгүйтвэл)
-                    utterance.lang = 'ru-RU';
-                    utterance.onend = () => { if(el) el.classList.remove('playing'); };
-                    window.speechSynthesis.speak(utterance);
-                });
+            utterance.lang = 'ru-RU'; // Хэрэв олдохгүй бол
         }
+        
+        utterance.rate = 0.85; // Жаахан удаан, ойлгомжтой
+        utterance.onend = () => { if(el) el.classList.remove('playing'); };
+        utterance.onerror = () => { if(el) el.classList.remove('playing'); };
+        
+        window.speechSynthesis.speak(utterance);
     }
 
-    // Системийн дуу хоолойнуудыг ачаалж бэлдэх
+    // Дуунуудыг урьдчилан ачаалах
     window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
 </script>
 </body>
