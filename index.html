@@ -2,66 +2,117 @@
 <html lang="mn">
 <head>
     <meta charset="UTF-8">
-    <title>Уншиж сурцгаая - Одтой тоглоом ⭐</title>
+    <title>Миний Ухаалаг Номын Сан 📚</title>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f7fbff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
-        .card { background: white; width: 90%; max-width: 950px; padding: 40px; border-radius: 50px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); text-align: center; border: 10px solid #48dbfb; }
-        .score-board { font-size: 30px; font-weight: bold; color: #f0932b; margin-bottom: 20px; background: #fff; padding: 10px 30px; border-radius: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .word { display: inline-block; cursor: pointer; padding: 5px 15px; border-radius: 20px; transition: 0.3s; border-bottom: 4px dashed #f1f2f6; font-size: 46px; font-weight: 700; color: #2c3e50; margin: 8px; }
-        .word.playing { background-color: #f9ca24; color: black; }
-        .word.correct { background-color: #2ed573 !important; color: white !important; border-bottom-color: #1e8449; scale: 1.1; }
-        .mic-btn { padding: 20px 50px; font-size: 24px; background: #eb4d4b; color: white; border: none; border-radius: 50px; cursor: pointer; margin-top: 30px; font-weight: bold; transition: 0.3s; }
-        .mic-btn.active { background: #6ab04c; box-shadow: 0 0 20px #6ab04c; }
-        #status { margin-top: 15px; color: #666; font-style: italic; font-size: 20px; }
-        .star { position: fixed; font-size: 40px; pointer-events: none; animation: fly 1s forwards; }
-        @keyframes fly { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-200px); opacity: 0; } }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f0f7ff; display: flex; flex-direction: column; align-items: center; padding: 20px; min-height: 100vh; margin: 0; }
+        .score-board { font-size: 32px; font-weight: bold; color: #ee5253; background: white; padding: 15px 40px; border-radius: 30px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); margin-bottom: 30px; border: 4px solid #ff9f43; }
+        
+        /* Цэсний загвар */
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; max-width: 1000px; width: 100%; }
+        .book-card { background: white; padding: 25px; border-radius: 35px; text-align: center; cursor: pointer; border: 6px solid #48dbfb; transition: 0.3s; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .book-card:hover { transform: translateY(-10px); border-color: #ff9f43; background: #fffaf0; }
+        .book-emoji { font-size: 50px; margin-bottom: 10px; display: block; }
+        .book-title { font-size: 24px; font-weight: bold; color: #2d3436; }
+
+        /* Унших хэсгийн загвар */
+        #reader { display: none; background: white; width: 95%; max-width: 900px; padding: 40px; border-radius: 50px; box-shadow: 0 20px 60px rgba(0,0,0,0.1); text-align: center; border: 10px solid #ff9f43; position: relative; }
+        .word { display: inline-block; cursor: pointer; padding: 5px 12px; border-radius: 15px; font-size: 42px; font-weight: 700; color: #2d3436; margin: 6px; border-bottom: 4px dashed #eee; transition: 0.2s; }
+        .word.playing { background-color: #ffeaa7; transform: scale(1.1); }
+        .word.correct { background-color: #55efc4 !important; color: white !important; border-bottom: none; }
+        
+        .back-btn { position: absolute; top: -20px; left: 20px; padding: 15px 30px; cursor: pointer; background: #636e72; color: white; border-radius: 25px; border: none; font-weight: bold; font-size: 18px; }
+        .mic-btn { padding: 20px 60px; font-size: 26px; background: #ff7675; color: white; border: none; border-radius: 50px; cursor: pointer; margin-top: 30px; font-weight: bold; box-shadow: 0 10px 20px rgba(255, 118, 117, 0.3); }
+        .mic-btn.active { background: #55efc4; animation: pulse 1s infinite; }
+        #status { margin-top: 20px; font-size: 20px; color: #636e72; font-style: italic; min-height: 30px; }
+        
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(85, 239, 196, 0.7); } 70% { box-shadow: 0 0 0 20px rgba(85, 239, 196, 0); } 100% { box-shadow: 0 0 0 0 rgba(85, 239, 196, 0); } }
     </style>
 </head>
 <body>
 
-<div class="score-board">Оноо: <span id="score">0</span> ⭐</div>
+<div class="score-board">Оноо: <span id="total-score">0</span> ⭐</div>
 
-<div class="card">
-    <div style="font-size: 100px;">🏇</div>
-    <h1 id="title" class="word" onclick="playVoice('Наадам', this)">Наадам</h1>
-    <div id="story-box" style="margin-top: 20px; line-height: 2.8; text-align: justify;"></div>
-    
-    <button id="mic-btn" class="mic-btn" onclick="startListening()">🎤 Миний хэлэхийг сонсоорой</button>
+<div id="menu" class="menu-grid"></div>
+
+<div id="reader">
+    <button class="back-btn" onclick="showMenu()">⬅️ Номын сан руу буцах</button>
+    <div id="story-area">
+        <h1 id="reader-title" style="font-size: 50px; color: #ff9f43; margin-bottom: 30px;"></h1>
+        <div id="reader-content"></div>
+    </div>
+    <button id="mic-btn" class="mic-btn" onclick="startListening()">🎤 Үгээ хэлээрэй</button>
     <div id="status">Үг дээр дарж сонсоод, микрофон дээр дарж дагаж хэлээрэй.</div>
 </div>
 
 <script>
-    const text = "Хүмүүс наадмаар хурдан морио уралдуулав Миний өвөө хоёр шүдлэн сойсон Ах дүү хоёр шүдлэн унаад наадамд уралдав Ахын унасан шүдлэн айрагдав Хэн хэн хурдан шүдлэн унав";
-    let score = 0;
-    let currentWordElement = null;
+    // ТАНЫ ИРҮҮЛСЭН 10 ЭХ
+    const allStories = [
+        { title: "Шинэ ном", emoji: "📖", text: "Хаш шинэ ном авлаа. Шинэ номоо уншив. Ном унших сайхан. Шүрээ олон шинэ ном уншсан. Ном их уншаарай." },
+        { title: "Пингвин", emoji: "🐧", text: "Пингвин бол өмнөд туйлд амьдардаг шувуу. Энэ шувууны өвчүү цээж нь цагаан, нуруу нь хар. Пингвин далавчтай боловч нисдэггүй. Харин усанд сайн сэлдэг. Пингвин загасаар хооллоно. Пингвинийг монголчууд оцон шувуу гэдэг." },
+        { title: "Ю үсэг", emoji: "🔤", text: "Ю үсэг Юндэн, Юмжав, Юмчин, Юмжир гэх мэт хүний нэрийн эхэнд байна. Бас ю үсэг нь Оюун, Аюур, Аюуш гэх мэт нэрийн дунд орно. Харин хүний нэрийн төгсгөлд орохгүй." },
+        { title: "Түүвэр өгүүлбэр", emoji: "📝", text: "Бүгдээрээ номоо уншъя. Тоогоо хурдан бодъё. Хичээлээ сайн давтъя. Дуу шүлэг суръя. Цэвэр агаарт явъя. Шөнийн оддыг харъя." },
+        { title: "Зааны соёо", emoji: "🐘", text: "Заан халуун оронд амьдардаг. Урт хоёр соёотой. Зааны соёогоор гоёл чимэглэл хийдэг. Зааны ясан сийлбэр гоё." },
+        { title: "Яргуй", emoji: "🌸", text: "Яргуй бол цэнхэр, шар өнгөтэй цэцэг. Шар яргуй уулын хярдаар ургадаг. Цэнхэр яргуй хээр тал, уулын бэлд ургана. Яргуйг эмийн ургамал болгон ашигладаг. Ямаа яргуйд дуртай. Яргуй идсэн ямаа сүү ихтэй байдаг." },
+        { title: "Жимсний зууш", emoji: "🥗", text: "Ээж дэлгүүрээс олон төрлийн жимс авлаа. Мөнхжин алим угаав. Анужин гадил арилгав. Жаргалмаа жүрж хальслав. Энхжин жимсээ таваглав. Тэд ээждээ сайн тусалжээ. Ээж нь жимсний зууш хийв. Бүгд амтархан идэв." },
+        { title: "Угж", emoji: "🍼", text: "Хавар боллоо. Мал төллөж эхлэв. Дорж төл малаа угжлаа. Хурга ишиг угж хөхөж цадав. Малын эврээр угж хийдэг." },
+        { title: "Зараа", emoji: "🦔", text: "Зараа их тайван амьтан. Ихэнх зараа өдөр үүрэндээ унтана. Заримдаа зүлгэн дээр унтана. Заримдаа хадны дор унтана. Шөнө зөөлөн зөөлөн алхан идэш хоолоо хайдаг. Нүд нь муу хардаг. Харин үнэрлэх болон сонсохдоо их сайн." },
+        { title: "Аалз", emoji: "🕷️", text: "Аалз бол найман нүдтэй, найман хөлтэй хорхой. Аалз шүлсээрээ тор нэхнэ. Торондоо орсон хорхойг иддэг. Манай оронд олон төрлийн аалз бий." },
+        { title: "Навч", emoji: "🍂", text: "Намар боллоо. Навч унав. Сурагчид олон төрлийн навч түүв. Навчаар наамал хийлээ. Чулуун, Учрал, Оч нарын наамал илүү сайхан болов." }
+    ];
 
-    // Сонсох систем (Speech Recognition)
-    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new Recognition();
+    let totalScore = 0;
+    let selectedWordElement = null;
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
     recognition.lang = 'mn-MN';
-    recognition.interimResults = false;
 
-    function startApp() {
-        const container = document.getElementById('story-box');
-        text.split(' ').forEach(word => {
+    // Цэс үүсгэх
+    function initMenu() {
+        const menu = document.getElementById('menu');
+        allStories.forEach((story, index) => {
+            const card = document.createElement('div');
+            card.className = 'book-card';
+            card.onclick = () => loadStory(index);
+            card.innerHTML = `<span class="book-emoji">${story.emoji}</span><div class="book-title">${story.title}</div>`;
+            menu.appendChild(card);
+        });
+    }
+
+    function loadStory(index) {
+        document.getElementById('menu').style.display = 'none';
+        document.getElementById('reader').style.display = 'block';
+        
+        const story = allStories[index];
+        document.getElementById('reader-title').innerText = story.title;
+        
+        const content = document.getElementById('reader-content');
+        content.innerHTML = '';
+        
+        story.text.split(' ').forEach(word => {
             const span = document.createElement('span');
             span.className = 'word';
             span.innerText = word + ' ';
             span.onclick = () => {
-                currentWordElement = span;
+                selectedWordElement = span;
                 playVoice(word, span);
             };
-            container.appendChild(span);
+            content.appendChild(span);
         });
+    }
+
+    function showMenu() {
+        document.getElementById('menu').style.display = 'grid';
+        document.getElementById('reader').style.display = 'none';
+        window.speechSynthesis.cancel();
     }
 
     function playVoice(w, el) {
         window.speechSynthesis.cancel();
+        document.querySelectorAll('.word.playing').forEach(e => e.classList.remove('playing'));
         el.classList.add('playing');
-        const utterance = new SpeechSynthesisUtterance(w);
+        
+        const utterance = new SpeechSynthesisUtterance(w.replace(/[.,-?]/g,"") + ".");
         const voices = window.speechSynthesis.getVoices();
-        const yesui = voices.find(v => v.name.includes('Yesui'));
-        if (yesui) utterance.voice = yesui;
+        utterance.voice = voices.find(v => v.name.includes('Yesui')) || voices[0];
         utterance.lang = 'mn-MN';
         utterance.rate = 0.8;
         utterance.onend = () => el.classList.remove('playing');
@@ -69,43 +120,30 @@
     }
 
     function startListening() {
-        if (!currentWordElement) {
-            alert("Эхлээд унших үг дээрээ дараарай!");
-            return;
-        }
+        if(!selectedWordElement) return alert("Эхлээд үг дээр дарж сонсоорой!");
         recognition.start();
         document.getElementById('mic-btn').classList.add('active');
-        document.getElementById('status').innerText = "Сонсож байна... Хэлээрэй!";
+        document.getElementById('status').innerText = "Сонсож байна...";
     }
 
-    recognition.onresult = (event) => {
-        const result = event.results[0][0].transcript.toLowerCase().trim();
-        const target = currentWordElement.innerText.toLowerCase().trim().replace(/[.,-?]/g,"");
-        
+    recognition.onresult = (e) => {
+        const result = e.results[0][0].transcript.toLowerCase().trim();
+        const target = selectedWordElement.innerText.toLowerCase().trim().replace(/[.,-?]/g,"");
         document.getElementById('mic-btn').classList.remove('active');
         
-        if (result.includes(target) || target.includes(result)) {
-            currentWordElement.classList.add('correct');
-            score += 10;
-            document.getElementById('score').innerText = score;
-            document.getElementById('status').innerText = "Мундаг байна! Зөв хэллээ. 🎉";
-            createStar();
+        if(result.includes(target) || target.includes(result)) {
+            selectedWordElement.classList.add('correct');
+            totalScore += 10;
+            document.getElementById('total-score').innerText = totalScore;
+            document.getElementById('status').innerText = "Мундаг байна! Зөв! 🎉";
         } else {
-            document.getElementById('status').innerText = `Чи "${result}" гэж хэллээ. Дахиад оролдоорой!`;
+            document.getElementById('status').innerText = `Чи "${result}" гэж хэллээ. Дахиад тод хэлээрэй.`;
         }
     };
 
-    function createStar() {
-        const star = document.createElement('div');
-        star.className = 'star';
-        star.innerText = '⭐';
-        star.style.left = Math.random() * window.innerWidth + 'px';
-        star.style.top = window.innerHeight / 2 + 'px';
-        document.body.appendChild(star);
-        setTimeout(() => star.remove(), 1000);
-    }
+    recognition.onerror = () => document.getElementById('mic-btn').classList.remove('active');
 
-    startApp();
+    initMenu();
     window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
 </script>
 </body>
