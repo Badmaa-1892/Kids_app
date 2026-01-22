@@ -6,13 +6,10 @@
     <style>
         body { font-family: 'Arial', sans-serif; background-color: #f0f9ff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
         .card { background: white; width: 85%; max-width: 900px; padding: 50px; border-radius: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center; border: 8px solid #48dbfb; }
-        h1 { font-size: 48px; color: #2f3542; cursor: pointer; margin-top: 10px; }
-        .story-box { margin-top: 30px; text-align: justify; line-height: 2.5; }
-        .word { display: inline-block; cursor: pointer; padding: 2px 10px; border-radius: 15px; transition: 0.2s; border-bottom: 3px dashed #eee; font-size: 38px; font-weight: bold; color: #2c3e50; }
+        .word { display: inline-block; cursor: pointer; padding: 2px 10px; border-radius: 15px; transition: 0.2s; border-bottom: 3px dashed #eee; font-size: 38px; font-weight: bold; color: #2c3e50; margin: 5px; }
         .word:hover { background-color: #fffa65; transform: scale(1.1); color: #e67e22; }
-        .word.playing { background-color: #f9ca24; color: black; border-bottom-color: #f0932b; }
-        #start-btn { padding: 25px 60px; font-size: 30px; background: #27ae60; color: white; border: none; border-radius: 60px; cursor: pointer; box-shadow: 0 8px 20px rgba(0,0,0,0.15); transition: 0.3s; }
-        #start-btn:hover { background: #219150; transform: scale(1.05); }
+        .word.playing { background-color: #f9ca24 !important; color: black !important; border-bottom-color: #f0932b; }
+        #start-btn { padding: 25px 60px; font-size: 30px; background: #27ae60; color: white; border: none; border-radius: 60px; cursor: pointer; box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
     </style>
 </head>
 <body>
@@ -21,15 +18,12 @@
 
 <div class="card" id="main-card" style="display:none;">
     <div style="font-size: 100px;">🏇</div>
-    <h1 onclick="playAudio('Наадам')">Наадам</h1>
-    <div class="story-box" id="story-container"></div>
+    <h1 onclick="playAudio('Наадам', this)">Наадам</h1>
+    <div id="story-container"></div>
 </div>
 
 <script>
     const storyText = "Хүмүүс наадмаар хурдан морио урал-дуу-лав. Миний өвөө 2 шүдлэн сойсон. Ах дүү 2 шүдлэн унаад наадамд уралдав. Ахын унасан шүдлэн айрагдав. - Хэн хэн хурдан шүдлэн унав?";
-    
-    // Аудио объектуудыг хадгалах сан
-    let audioElements = {};
 
     function startApp() {
         document.getElementById('start-btn').style.display = 'none';
@@ -40,50 +34,47 @@
             const span = document.createElement('span');
             span.className = 'word';
             span.innerText = word + ' ';
-            span.onclick = (e) => {
-                e.preventDefault();
-                playAudio(word, span);
-            };
+            span.onclick = () => playAudio(word, span);
             container.appendChild(span);
         });
-
-        // Эхлүүлэх үед системийг "сэрээх" туршилт
-        playAudio("Наадам");
     }
 
-    function playAudio(w, el) {
-        if(el) el.classList.add('playing');
-        const cleanWord = w.replace(/[.,-?]/g,"");
+    function playAudio(word, element) {
+        if(element) element.classList.add('playing');
+        const cleanWord = word.replace(/[.,-?]/g,"");
         
-        // Google Translate-ийн дуу хоолой (Https-ээр)
-        const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(cleanWord)}&tl=mn&client=tw-ob`;
+        // Google Translate-ийн дууг өөр аргаар (Proxy ашиглахгүй шууд) дуудах
+        const url = "https://translate.google.com/translate_tts?ie=UTF-8&tl=mn&client=tw-ob&q=" + encodeURIComponent(cleanWord);
         
-        // Шинэ Аудио объект үүсгэх
         const audio = new Audio();
         audio.src = url;
-        audio.crossOrigin = "anonymous"; // Зарим хөтөчийн хандалтыг зөвшөөрөх
         
-        audio.play()
-            .then(() => {
-                audio.onended = () => { if(el) el.classList.remove('playing'); };
-            })
-            .catch(error => {
-                console.log("Дуу тоглуулахад саатал гарлаа:", error);
-                if(el) el.classList.remove('playing');
-                // Хэрэв Google ажиллахгүй бол хөтөчийн өөрийнх нь Орос системээр орлуулна (бүр мөсөн таг болохоос сэргийлж)
-                fallbackSpeech(cleanWord, el);
-            });
+        // Хэрэв дуу ачаалахгүй бол дараагийн арга руу шилжинэ
+        const timer = setTimeout(() => {
+            if (audio.paused) {
+                console.log("Google удаж байна, систем уншигч руу шилжлээ");
+                fallbackSpeech(cleanWord, element);
+            }
+        }, 1000);
+
+        audio.play().then(() => {
+            clearTimeout(timer);
+            audio.onended = () => { if(element) element.classList.remove('playing'); };
+        }).catch(e => {
+            clearTimeout(timer);
+            fallbackSpeech(cleanWord, element);
+        });
     }
 
-    function fallbackSpeech(text, el) {
+    // Хөтөчийн өөрийн систем (Интернэтгүй үед ажиллана)
+    function fallbackSpeech(text, element) {
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'ru-RU'; // Монгол хэл байхгүй тул ойролцоо дуудлага
-        utterance.rate = 0.8;
-        utterance.onend = () => { if(el) el.classList.remove('playing'); };
+        utterance.lang = 'ru-RU'; // Монгол хэл байхгүй тул Оросоор
+        utterance.rate = 0.7;
+        utterance.onend = () => { if(element) element.classList.remove('playing'); };
         window.speechSynthesis.speak(utterance);
     }
 </script>
-
 </body>
 </html>
