@@ -2,37 +2,155 @@
 <html lang="mn">
 <head>
     <meta charset="UTF-8">
-    <title>Миний 15 Ном - Уншиж сурцгаая 📚</title>
+    <title>Миний 15 Ном 📚 - Тоглоом</title>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f0f7ff; display: flex; flex-direction: column; align-items: center; padding: 20px; min-height: 100vh; margin: 0; }
-        .score-board { font-size: 32px; font-weight: bold; color: #ee5253; background: white; padding: 15px 40px; border-radius: 30px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); margin-bottom: 20px; border: 4px solid #ff9f43; }
-        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; max-width: 1100px; width: 100%; }
-        .book-card { background: white; padding: 20px; border-radius: 25px; text-align: center; cursor: pointer; border: 4px solid #48dbfb; transition: 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .book-card:hover { transform: translateY(-5px); border-color: #ff9f43; background: #fffaf0; }
-        .book-emoji { font-size: 40px; margin-bottom: 5px; display: block; }
-        .book-title { font-size: 18px; font-weight: bold; color: #2d3436; }
-        #reader { display: none; background: white; width: 95%; max-width: 900px; padding: 40px; border-radius: 50px; box-shadow: 0 20px 60px rgba(0,0,0,0.1); text-align: center; border: 10px solid #ff9f43; position: relative; margin-top: 20px; }
-        .word { display: inline-block; cursor: pointer; padding: 5px 10px; border-radius: 12px; font-size: 38px; font-weight: 700; color: #2d3436; margin: 5px; border-bottom: 3px dashed #eee; transition: 0.2s; }
-        .word.playing { background-color: #ffeaa7; transform: scale(1.1); }
-        .word.correct { background-color: #55efc4 !important; color: white !important; }
-        .back-btn { padding: 10px 20px; cursor: pointer; background: #636e72; color: white; border-radius: 20px; border: none; font-weight: bold; margin-bottom: 20px; }
-        .mic-btn { padding: 20px 50px; font-size: 24px; background: #ff7675; color: white; border: none; border-radius: 50px; cursor: pointer; margin-top: 25px; font-weight: bold; }
-        .mic-btn.active { background: #55efc4; box-shadow: 0 0 20px #55efc4; }
-        #status { margin-top: 15px; font-size: 18px; color: #636e72; font-style: italic; }
+        :root {
+            --primary: #ff7675;
+            --secondary: #48dbfb;
+            --success: #1dd1a1;
+            --bg: #f7f1e3;
+        }
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background: var(--bg); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 20px; 
+            min-height: 100vh; 
+            margin: 0; 
+        }
+        .score-board { 
+            font-size: 36px; 
+            font-weight: 900; 
+            color: #d35400; 
+            background: white; 
+            padding: 15px 45px; 
+            border-radius: 50px; 
+            box-shadow: 0 10px 0 #e67e22; 
+            margin-bottom: 30px; 
+            border: 5px solid #f1c40f;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* Цэсний гоё загвар */
+        .menu-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+            gap: 20px; 
+            max-width: 1100px; 
+            width: 100%; 
+        }
+        .book-card { 
+            background: white; 
+            padding: 25px; 
+            border-radius: 30px; 
+            text-align: center; 
+            cursor: pointer; 
+            border: 6px solid var(--secondary); 
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 0 var(--secondary);
+        }
+        .book-card:hover { 
+            transform: scale(1.05) rotate(2deg); 
+            border-color: var(--primary); 
+            box-shadow: 0 10px 0 var(--primary);
+        }
+        .book-emoji { font-size: 55px; margin-bottom: 10px; display: block; }
+        .book-title { font-size: 20px; font-weight: bold; color: #2c3e50; }
+
+        /* Унших хэсэг */
+        #reader { 
+            display: none; 
+            background: white; 
+            width: 95%; 
+            max-width: 950px; 
+            padding: 50px; 
+            border-radius: 60px; 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.1); 
+            text-align: center; 
+            border: 12px solid #f1c40f; 
+            position: relative;
+        }
+        .word { 
+            display: inline-block; 
+            cursor: pointer; 
+            padding: 8px 15px; 
+            border-radius: 20px; 
+            font-size: 44px; 
+            font-weight: 800; 
+            color: #2d3436; 
+            margin: 8px; 
+            background: #f1f2f6;
+            transition: 0.2s;
+            border-bottom: 6px solid #dfe4ea;
+        }
+        .word:hover { background: #ffeaa7; }
+        .word.playing { 
+            background-color: #f9ca24 !important; 
+            transform: scale(1.2); 
+            border-bottom-color: #f39c12;
+        }
+        .word.correct { 
+            background-color: var(--success) !important; 
+            color: white !important; 
+            border-bottom-color: #10ac84;
+        }
+        
+        .back-btn { 
+            background: var(--primary); 
+            color: white; 
+            padding: 15px 30px; 
+            border-radius: 30px; 
+            border: none; 
+            font-weight: bold; 
+            cursor: pointer; 
+            font-size: 20px;
+            box-shadow: 0 6px 0 #ff5e57;
+            margin-bottom: 30px;
+        }
+        .back-btn:active { transform: translateY(3px); box-shadow: 0 3px 0 #ff5e57; }
+
+        .mic-btn { 
+            padding: 25px 70px; 
+            font-size: 28px; 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            border-radius: 100px; 
+            cursor: pointer; 
+            margin-top: 40px; 
+            font-weight: bold; 
+            box-shadow: 0 10px 0 #ff5e57;
+        }
+        .mic-btn.active { 
+            background: var(--success); 
+            box-shadow: 0 10px 0 #10ac84;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
     </style>
 </head>
 <body>
 
-<div class="score-board">Миний оноо: <span id="total-score">0</span> ⭐</div>
+<div class="score-board">ОНОО: <span id="total-score">0</span> ⭐</div>
 
 <div id="menu" class="menu-grid"></div>
 
 <div id="reader">
-    <button class="back-btn" onclick="showMenu()">⬅️ Буцах</button>
-    <h1 id="reader-title" class="word" style="color: #ff9f43; border-bottom: none; display: block; margin-bottom: 30px;"></h1>
+    <button class="back-btn" onclick="showMenu()">⬅️ БУЦАХ</button>
+    <h1 id="reader-title" class="word" style="background:none; border:none; font-size: 60px; color: #e67e22; display: block; margin-bottom: 40px;"></h1>
     <div id="reader-content"></div>
-    <button id="mic-btn" class="mic-btn" onclick="startListening()">🎤 Үгээ хэлээрэй</button>
-    <div id="status">Үг дээр дарж сонсоод, микрофон дээр дарж хэлээрэй.</div>
+    <button id="mic-btn" class="mic-btn" onclick="startListening()">🎤 ХЭЛЭЭРЭЙ</button>
+    <div id="status" style="margin-top:20px; font-size:22px; color: #7f8c8d;">Үг дээрээ дараад дагаад хэлээрэй!</div>
 </div>
 
 <script>
@@ -43,11 +161,15 @@
         { title: "Түүвэр өгүүлбэр", emoji: "📝", text: "Бүгдээрээ номоо уншъя. Тоогоо хурдан бодъё. Хичээлээ сайн давтъя. Дуу шүлэг суръя. Цэвэр агаарт явъя. Шөнийн оддыг харъя." }, //
         { title: "Зааны соёо", emoji: "🐘", text: "Заан халуун оронд амьдардаг. Урт хоёр соёотой. Зааны соёогоор гоёл чимэглэл хийдэг. Зааны ясан сийлбэр гоё." }, //
         { title: "Яргуй", emoji: "🌸", text: "Яргуй бол цэнхэр, шар өнгөтэй цэцэг. Шар яргуй уулын хярдаар ургадаг. Цэнхэр яргуй хээр тал, уулын бэлд ургана. Яргуйг эмийн ургамал болгон ашигладаг. Ямаа яргуйд дуртай. Яргуй идсэн ямаа сүү ихтэй байдаг." }, //
-        { title: "Жимсний зууш", emoji: "🥗", text: "Ээж дэлгүүрээс олон төрлийн жимс авлаа. Мөнхжин алим угаав. Анужин гадил арилгав. Жаргалмаа жүрж хальслав. Энхжин жимсээ таваглав. Тэд ээждээ сайн тусалжээ. Ээж нь жимсний зууш хийв. Бүгд амтархан идэв." }, //
+        { title: "Жимсний зууш", emoji: "🥗", text: "Ээж дэлгүүрээс олон төрлийн жимс авлаа. Мөнхжин алим угаав. Анужин гадил арилгав. Жаргалмаа жүрж хальслав. Энхжин жимсээ таваглав. Тэд ээждээ сайн тусалжээ. Ээж нь жимсний зууш хив. Бүгд амтархан идэв." }, //
         { title: "Угж", emoji: "🍼", text: "Хавар боллоо. Мал төллөж эхлэв. Дорж төл малаа угжлаа. Хурга ишиг угж хөхөж цадав. Малын эврээр угж хийдэг." }, //
         { title: "Зараа", emoji: "🦔", text: "Зараа их тайван амьтан. Ихэнх зараа өдөр үүрэндээ унтана. Заримдаа зүлгэн дээр унтана. Заримдаа хадны дор унтана. Шөнө зөөлөн зөөлөн алхан идэш хоолоо хайдаг. Нүд нь муу хардаг. Харин үнэрлэх болон сонсохдоо их сайн." }, //
         { title: "Аалз", emoji: "🕷️", text: "Аалз бол найман нүдтэй, найман хөлтэй хорхой. Аалз шүлсээрээ тор нэхнэ. Торондоо орсон хорхойг иддэг. Манай оронд олон төрлийн аалз бий." }, //
-        { title: "Навч", emoji: "🍂", text: "Намар боллоо. Навч унав. Сурагчид олон төрлийн навч түүв. Навчаар наамал хийлээ. Чулуун, Учрал, Оч нарын наамал илүү сайхан болов." } //
+        { title: "Навч", emoji: "🍂", text: "Намар боллоо. Навч унав. Сурагчид олон төрлийн навч түүв. Навчаар наамал хийлээ. Чулуун, Учрал, Оч нарын наамал илүү сайхан болов." }, //
+        { title: "Наадам", emoji: "🏇", text: "Хүмүүс наадмаар хурдан морио уралдуулав. Миний өвөө хоёр шүдлэн сойсон. Ах дүү хоёр шүдлэн унаад наадамд уралдав. Ахын унасан шүдлэн айрагдав." },
+        { title: "Таван хошуу мал", emoji: "🐑", text: "Монгол хүн таван хошуу мал өсгөдөг. Хонь майлдаг. Ямаа мөөрөлддөг. Үхэр мөөрдөг. Тэмээ буйлдаг. Морь янцгаадаг." },
+        { title: "Миний гэр", emoji: "🏡", text: "Манайх ам бүл дөрвүүлээ. Аав ээж ах бид дөрөв. Манайх хотын төвд амьдардаг. Бид гэрээ цэвэрлэх дуртай." },
+        { title: "Сургууль", emoji: "🎒", text: "Би нэгдүгээр ангид сурдаг. Сургуульдаа явах дуртай. Олон найзтай болсон. Багш маань бидэнд эрдэм заадаг." }
     ];
 
     let totalScore = 0;
@@ -62,7 +184,7 @@
             const card = document.createElement('div');
             card.className = 'book-card';
             card.onclick = () => loadStory(index);
-            card.innerHTML = `<span class="book-emoji">${story.emoji}</span><div class="book-title">${index + 1}. ${story.title}</div>`;
+            card.innerHTML = `<span class="book-emoji">${story.emoji}</span><div class="book-title">${story.title}</div>`;
             menu.appendChild(card);
         });
     }
@@ -71,23 +193,16 @@
         document.getElementById('menu').style.display = 'none';
         document.getElementById('reader').style.display = 'block';
         const story = allStories[index];
-        
-        // Гарчгийг тохируулах ба дарахад унших функц нэмэх
         const titleEl = document.getElementById('reader-title');
         titleEl.innerText = story.title;
         titleEl.onclick = () => playVoice(story.title, titleEl);
-        
         const content = document.getElementById('reader-content');
         content.innerHTML = '';
-        
         story.text.split(' ').forEach(word => {
             const span = document.createElement('span');
             span.className = 'word';
             span.innerText = word + ' ';
-            span.onclick = () => { 
-                selectedWordElement = span; 
-                playVoice(word, span); 
-            };
+            span.onclick = () => { selectedWordElement = span; playVoice(word, span); };
             content.appendChild(span);
         });
     }
@@ -102,14 +217,9 @@
         window.speechSynthesis.cancel();
         document.querySelectorAll('.word.playing').forEach(e => e.classList.remove('playing'));
         el.classList.add('playing');
-        
-        const cleanWord = w.replace(/[.,-?]/g,"").trim();
-        const utterance = new SpeechSynthesisUtterance(cleanWord + ".");
-        
+        const utterance = new SpeechSynthesisUtterance(w.replace(/[.,-?]/g,"") + ".");
         const voices = window.speechSynthesis.getVoices();
-        const yesui = voices.find(v => v.name.includes('Yesui'));
-        if (yesui) utterance.voice = yesui;
-        
+        utterance.voice = voices.find(v => v.name.includes('Yesui')) || voices[0];
         utterance.lang = 'mn-MN';
         utterance.rate = 0.8;
         utterance.onend = () => el.classList.remove('playing');
@@ -117,31 +227,27 @@
     }
 
     function startListening() {
-        if(!selectedWordElement) return alert("Үг дээр дарж сонсоорой!");
+        if(!selectedWordElement) return alert("Үг дээрээ дарна уу!");
         recognition.start();
         document.getElementById('mic-btn').classList.add('active');
-        document.getElementById('status').innerText = "Сонсож байна...";
     }
 
     recognition.onresult = (e) => {
         const result = e.results[0][0].transcript.toLowerCase().trim();
         const target = selectedWordElement.innerText.toLowerCase().trim().replace(/[.,-?]/g,"");
         document.getElementById('mic-btn').classList.remove('active');
-        
         if(result.includes(target) || target.includes(result)) {
             selectedWordElement.classList.add('correct');
             totalScore += 10;
             document.getElementById('total-score').innerText = totalScore;
-            document.getElementById('status').innerText = "Маш сайн! 🎉";
+            document.getElementById('status').innerText = "МУНДАГ БАЙНА! 🎉";
         } else {
-            document.getElementById('status').innerText = "Дахиад тод хэлээрэй!";
+            document.getElementById('status').innerText = "ДАХИАД ХЭЛЭЭРЭЙ!";
         }
     };
 
     initMenu();
-    window.speechSynthesis.onvoiceschanged = () => {
-        window.speechSynthesis.getVoices();
-    };
+    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
 </script>
 </body>
 </html>
