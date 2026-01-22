@@ -2,19 +2,19 @@
 <html lang="mn">
 <head>
     <meta charset="UTF-8">
-    <title>Наадам 🏇 - Цэвэр Монгол</title>
+    <title>Наадам 🏇 - Уншиж сурцгаая</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f9ff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
+        body { font-family: 'Arial', sans-serif; background-color: #f0f9ff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
         .card { background: white; width: 85%; max-width: 900px; padding: 50px; border-radius: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center; border: 8px solid #48dbfb; }
         .word { display: inline-block; cursor: pointer; padding: 5px 12px; border-radius: 15px; transition: 0.2s; border-bottom: 3px dashed #eee; font-size: 42px; font-weight: bold; color: #2c3e50; margin: 5px; }
         .word:hover { background-color: #fffa65; transform: scale(1.1); color: #e67e22; }
-        .word.playing { background-color: #f9ca24 !important; color: black !important; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        #start-btn { padding: 25px 60px; font-size: 30px; background: #27ae60; color: white; border: none; border-radius: 60px; cursor: pointer; box-shadow: 0 8px 20px rgba(0,0,0,0.15); font-weight: bold; }
+        .word.playing { background-color: #f9ca24 !important; color: black !important; }
+        #start-btn { padding: 25px 60px; font-size: 30px; background: #27ae60; color: white; border: none; border-radius: 60px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<button id="start-btn" onclick="startApp()">🚀 Цэвэр Монголоор сонсох</button>
+<button id="start-btn" onclick="startApp()">🚀 Тоглоомыг эхлэх</button>
 
 <div class="card" id="main-card" style="display:none;">
     <div style="font-size: 110px; margin-bottom: 20px;">🏇</div>
@@ -43,23 +43,38 @@
         if(element) element.classList.add('playing');
         const cleanWord = word.replace(/[.,-?]/g,"");
         
-        // Google-ийн дууг өөр баталгаатай сувгаар дуудах
-        const url = "https://translate.google.com/translate_tts?ie=UTF-8&tl=mn&client=tw-ob&q=" + encodeURIComponent(cleanWord);
-        
-        const audio = new Audio();
-        audio.src = url;
-        audio.playbackRate = 0.9; // Бага зэрэг удаашруулж хүүхдэд ойлгомжтой болгов
+        // 1. Эхлээд Google-ийн цэвэр Монгол дууг оролдоно
+        const ttsUrl = "https://translate.google.com/translate_tts?ie=UTF-8&tl=mn&client=tw-ob&q=" + encodeURIComponent(cleanWord);
+        const audio = new Audio(ttsUrl);
+
+        // Дуу ачаалах хугацааг 1.5 секундээр хязгаарлана
+        const timeout = setTimeout(() => {
+            audio.pause();
+            audio.src = "";
+            fallbackSpeech(cleanWord, element);
+        }, 1500);
 
         audio.play().then(() => {
+            clearTimeout(timeout);
             audio.onended = () => { if(element) element.classList.remove('playing'); };
-        }).catch(e => {
-            // Хэрэв Google бүр болохгүй бол хөтөчийн системийг оролдоно
-            // Гэхдээ эхлээд интернэт холболтыг шалгана
-            if (!navigator.onLine) {
-                alert("Интернэт холболтоо шалгана уу. Цэвэр Монгол дуу интернэттэй үед ажиллана.");
-            }
-            if(element) element.classList.remove('playing');
+        }).catch(() => {
+            clearTimeout(timeout);
+            // 2. Хэрэв Google ажиллахгүй бол хөтөчийн системийг дуудна
+            fallbackSpeech(cleanWord, element);
         });
+    }
+
+    function fallbackSpeech(text, element) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        
+        // Монгол хэл байхгүй тул орос хэлээр уншуулахыг оролдоно
+        utterance.lang = 'ru-RU';
+        utterance.rate = 0.8;
+        utterance.onend = () => { if(element) element.classList.remove('playing'); };
+        utterance.onerror = () => { if(element) element.classList.remove('playing'); };
+        
+        window.speechSynthesis.speak(utterance);
     }
 </script>
 </body>
